@@ -1,9 +1,10 @@
-import Card from "./components/Card";
+import CardList from "./components/CardList";
+import CardServices from "./application/CardServices"
 
 function App() {
   return (
     <div className="container">
-      <Card />
+      <CardList service={CardServices}/>
     </div>
   );
 }

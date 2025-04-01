@@ -1,0 +1,65 @@
+import {useState, useRef, useCallback, useEffect} from 'react';
+
+
+// Tracks scroll velocity between thresholds (Assuming 80% and 90% of page height).
+const useScrollTrigger = (service, thresholdStart = 0.8, thresholdEnd = 0.9) => {
+  const [velocity, setVelocity] = useState(0);
+  const [shouldFetch, setShouldFetch] = useState(false);
+
+  const trackingActive = useRef(false);
+  const lastScrollY = useRef(0);
+  const lastTime = useRef(Date.now());
+  const baseHeight = useRef(document.documentElement.scrollHeight);
+
+  const handleScroll = useCallback(() => {
+    const currentPos = window.scrollY + window.innerHeight;
+    const trackingStart = baseHeight.current * thresholdStart;
+    const trackingEnd = baseHeight.current * thresholdEnd;
+
+    // Start tracking velocity at the 80% threshold
+    if (!trackingActive.current && currentPos > trackingStart && currentPos <= trackingEnd) {
+      trackingActive.current = true;
+      lastScrollY.current = currentPos;
+      lastTime.current = Date.now();
+    }
+
+    // Stop tracking at the 90% threshold
+    if (trackingActive.current && currentPos > trackingEnd) {
+      trackingActive.current = false;
+
+      const deltaY = currentPos - lastScrollY.current;
+      const deltaTime = Date.now() - lastTime.current;
+
+      // Change it when pagination from both sides(simple and reverse) is required
+      setVelocity(Math.abs(deltaY / deltaTime));
+
+      lastScrollY.current = currentPos;
+      lastTime.current = Date.now();
+      setShouldFetch(true);
+      return;
+    }
+     
+  }, [service]);
+
+  const fetchMoreData = useCallback(async (cursor) => {
+    if (!shouldFetch) return;
+
+    try {
+      const newCards = await service.loadMore(cursor, velocity);
+      baseHeight.current = document.documentElement.scrollHeight;
+      return newCards;
+    } finally {
+      setShouldFetch(false);
+      trackingActive.current = false; // Reset for next cycle
+    }
+  }, [service]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  return [ shouldFetch, fetchMoreData ];
+};
+
+export default useScrollTrigger;
