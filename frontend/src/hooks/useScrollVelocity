@@ -1,0 +1,37 @@
+import { useState, useEffect } from 'react';
+
+const useScrollVelocity = () => {
+  const [scrollVelocity, setScrollVelocity] = useState(0);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY; // Last recorded scroll position
+    let lastTime = Date.now();       // Last recorded timestamp
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY; // Current scroll position
+      const currentTime = Date.now();       // Current timestamp
+
+      const deltaY = currentScrollY - lastScrollY; // Distance scrolled
+      const deltaTime = currentTime - lastTime;   // Time elapsed
+
+      if (deltaTime > 0) {
+        const velocity = deltaY / deltaTime; // Velocity calculation
+        setScrollVelocity(velocity);
+      }
+
+      // Update for the next scroll event
+      lastScrollY = currentScrollY;
+      lastTime = currentTime;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  return scrollVelocity;
+};
+
+export default useScrollVelocity;
