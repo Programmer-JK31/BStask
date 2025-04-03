@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-
+const cors = require('cors');
 const ItemService = require('./application/services/ItemServices');
 const ItemRepo = require('./Infrastructure/ItemRepo');
 const ScrollSpeedAdapter = require('./Infrastructure/api/PaginationStrategy/ScrollSpeedtoChunkSize');
@@ -22,6 +22,7 @@ const itemService = new ItemService(itemRepo, paginationStrategy, paginationDire
 
 // Express setup
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 // Routes

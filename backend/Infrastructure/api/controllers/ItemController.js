@@ -5,7 +5,7 @@ const createItemController = (itemService) => ({
         const items = await itemService.getItems(cursorId, scrollVelocity);
         
         res.json({
-          items: items.map(item => item.toJSON())
+          items: items.map(item => item.toJSON()),
         });
       } catch (error) {
         res.status(500).json({ error: error.message });

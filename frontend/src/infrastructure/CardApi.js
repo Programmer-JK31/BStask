@@ -2,13 +2,16 @@ import axios from 'axios';
 import { Card } from '../domain/Card';
 
 class CardApi{
-    constructor(host = process.env.host){
-        this.host = host;
-    }
+    constructor(baseURL = process.env.REACT_APP_API_HOST) {
+        this._baseURL = baseURL;
+        this.api = axios.create({
+            baseURL : this._baseURL // Set the base URL for all requests
+          });
+      }
 
     async fetch(cursor, velocity){
         try {
-            const response = await axios.get(`${this.host}/items`, {
+            const response = await this.api.get(`/items`, {
               params: {
                 cursorId: cursor,
                 scrollVelocity: velocity,
@@ -23,7 +26,7 @@ class CardApi{
 
     async save(updates) {
         try {
-          await this.api.post(`${this.host}/items/counts`, { updates });
+          await this.api.post(`/items/counts`, { updates });
         } catch (error) {
           console.error('Error saving card updates:', error);
           throw error;

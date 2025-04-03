@@ -13,8 +13,8 @@ class Item {
 
     toJSON() {
       return {
-        id: this.id,
-        value: this.value
+        id: this._id,
+        value: this._value
       };
     }
 }

@@ -15,10 +15,11 @@ export default class CardServices{
     }
 
     queueUpdate(card){
-        this.pendingUpdates.set(card.id, card.value);
+        this.pendingUpdates.set(card._id, card._value);
     }
 
     async savePendingUpdates(){
+        console.log("I am here")
         if (this.pendingUpdates.size > 0) {
             const updates = Array.from(this.pendingUpdates.entries())
               .map(([id, value]) => ({ id, value }));

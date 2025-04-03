@@ -8,10 +8,10 @@ class ItemService {
     async getItems(cursorId, scrollVelocity) {
 
       // Initial item creation if needed
-      if (cursorId == 0 && scrollVelocity == 0){
-        const items = await this.itemRepo.createInitialItems();
-        return items;
-      }
+      // if (cursorId == 0 && scrollVelocity == 0){
+      //   const items = await this.itemRepo.createInitialItems();
+      //   return items;
+      // }
 
 
       // Convert scroll speed to page size and getting direction
@@ -25,9 +25,7 @@ class ItemService {
     }
   
     async processCountUpdates(updates) {
-      // Validating updates before saving
-      const validUpdates = updates.filter(u => Number.isInteger(u.amount));
-      return this.itemRepo.bulkIncrementValues(validUpdates);
+      return this.itemRepo.bulkIncrementValues(updates);
     }
   }
   

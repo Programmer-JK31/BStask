@@ -1,6 +1,6 @@
 class ScrollDirection{
     getDirection(scrollVelocity){
-        return scrollVelocity > 0 ? 'up' : 'down';
+        return scrollVelocity >= 0 ? 'down' : 'up';
     }
 }
 

@@ -1,6 +1,6 @@
 export class Card {
     constructor(id, value) {
-      this.id = id;
+      this._id = id;
       this._value = value;
     }
   
@@ -12,6 +12,6 @@ export class Card {
     }
 
     toJSON() {
-      return { id: this.id, value: this.value };
+      return { id: this._id, value: this._value };
     }
   }

@@ -7,7 +7,7 @@ const Item = require('../domain/items/Item');
 class ItemRepo{
 
     // Creating initial items
-    async createInitialItems(count = 20) {
+    async createInitialItems(count = 10) {
         const items = Array.from({ length: count }, () => ({
           value: 0 //initial values
         }));
@@ -22,10 +22,10 @@ class ItemRepo{
     // Implementation of Pagination
     async findCursor(cursorId, limit, direction) {
         // query to DB with condition of pagination
-        const query = cursorId ? { _id: direction === 'down' ? { $gt: cursorId } : { $lt: cursorId } } : {};
+        const query = cursorId !== '0' ? { _id: direction === 'down' ? { $gt: cursorId } : { $lt: cursorId } } : {};
         
         // DB query execution
-        const docs = await ItemModel.find(query)
+        let docs = await ItemModel.find(query)
           .sort({ _id: 1 })
           .limit(limit)
           .lean(); 
@@ -33,10 +33,11 @@ class ItemRepo{
         // if number of items are less than pagination limit
         if(direction === 'down' && docs.length < limit){
             const needed = limit - docs.length;
+            const items = Array.from({ length: needed }, () => ({
+              value: 0 //initial values
+            }));
             const newDocs = await ItemModel.insertMany(
-                Array.from({ length: needed }, () => ({ 
-                value: 0 
-                })),
+                items,
                 { ordered: false }
             );
             docs = [...docs, ...newDocs];
@@ -53,15 +54,15 @@ class ItemRepo{
     // In single query whole set should be updated
     async bulkIncrementValues(updates) {
         // Creating bulk write operation
-        const bulkOps = updates.map(({ itemId, amount }) => ({
+        const bulkOps = updates.map(({ id, value }) => ({
           updateOne: {
-            filter: { _id: itemId },
-            update: { $inc: { value: amount } }
+            filter: { _id: id },
+            update: { $set: { value: value } }
           }
         }));
     
         // Execute as single query
-        await ItemModel.bulkWrite(bulkOps, { ordered: false });
+        const result = await ItemModel.bulkWrite(bulkOps, { ordered: false });
     }
 }
 
